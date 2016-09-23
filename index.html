@@ -1,0 +1,305 @@
+<html>
+	<body>
+		<link href="https://fonts.googleapis.com/css?family=Great+Vibes" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"> 
+
+		<style>
+			* {
+				position: relative;
+				box-sizing: border-box;
+				margin: 0px;
+				padding: 0px;
+			}
+			html, body {
+				width: 100%;
+				height: 100%;
+				color: #111;
+				font-family: "Open Sans";
+			}
+			canvas {
+				position: absolute;
+				top: 0px;
+				left: 0px;
+			}
+			h1 {
+				font-family: "Great Vibes";
+				font-size: 8em;
+				color: #111;
+			}
+			h2 {
+				font-size: 2em;
+				margin-bottom: 1em;
+			}
+			p {
+				font-size: 1em;
+				margin-bottom: 1em;;
+				line-height: 1.1em;
+			}
+			.section {
+				padding: 60px;
+			}
+			.section.full {
+				width: 100%;
+				height: 100%;
+			}
+			.align {
+				display: table;
+			}
+			.align.middle .content {
+				vertical-align: middle;
+			}
+			.align.center {
+				text-align: center;
+			}
+			.align .content {
+				display: table-cell;
+			}
+			.container {
+				max-width: 992px;
+				margin: 0px auto;
+			}
+		</style>
+
+		<div class="section full align middle center" id="splash">
+			<div class="content">
+				<h1>Lorem ipsum</h1>
+			</div>
+		</div>
+
+		<div class="section">
+			<div class="container">
+				<h2>Lorem ipsum</h2>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ego vero isti, inquam, permitto. Quid ei reliquisti, nisi te, quoquo modo loqueretur, intellegere, quid diceret? Nec tamen ullo modo summum pecudis bonum et hominis idem mihi videri potest. Sine ea igitur iucunde negat posse se vivere? Hoc non est positum in nostra actione. Quod autem satis est, eo quicquid accessit, nimium est; Duo Reges: constructio interrete. Scientiam pollicentur, quam non erat mirum sapientiae cupido patria esse cariorem. Sint modo partes vitae beatae.</p>
+				<p>Ex ea difficultate illae fallaciloquae, ut ait Accius, malitiae natae sunt. Re mihi non aeque satisfacit, et quidem locis pluribus. Sed quid sentiat, non videtis. Te enim iudicem aequum puto, modo quae dicat ille bene noris. Serpere anguiculos, nare anaticulas, evolare merulas, cornibus uti videmus boves, nepas aculeis. Hanc quoque iucunditatem, si vis, transfer in animum; Videmusne ut pueri ne verberibus quidem a contemplandis rebus perquirendisque deterreantur? Cur igitur, inquam, res tam dissimiles eodem nomine appellas? Virtutibus igitur rectissime mihi videris et ad consuetudinem nostrae orationis vitia posuisse contraria. Ut proverbia non nulla veriora sint quam vestra dogmata.</p>
+			</div>
+		</div>
+
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+		<script type="text/javascript" src="https://cdn.rawgit.com/humbletim/glm-js/31728cb4/build/glm-js.min.js"></script>
+
+		<script type="text/javascript">
+
+			var Glitch = {};
+
+			Glitch.extend = function(protoProps, staticProps) {
+				var parent = this;
+				var child;
+
+				// The constructor function for the new subclass is either defined by you
+				// (the "constructor" property in your `extend` definition), or defaulted
+				// by us to simply call the parent constructor.
+				if (protoProps && _.has(protoProps, 'constructor')) {
+					child = protoProps.constructor;
+				} else {
+					child = function(){ return parent.apply(this, arguments); };
+				}
+
+				// Add static properties to the constructor function, if supplied.
+				_.extend(child, parent, staticProps);
+
+				// Set the prototype chain to inherit from `parent`, without calling
+				// `parent`'s constructor function and add the prototype properties.
+				child.prototype = _.create(parent.prototype, protoProps);
+				child.prototype.constructor = child;
+
+				// Set a convenience property in case the parent's prototype is needed
+				// later.
+				child.__super__ = parent.prototype;
+
+				return child;
+			};
+
+			Glitch.Effect = function(options) {
+				this._init.apply(this, arguments);
+			};
+
+			_.extend(Glitch.Effect.prototype, {
+				_init: function(options) {
+					this.options = options;
+					this.canvas = document.createElement("canvas");
+					this.context = this.canvas.getContext("2d");
+					this.options.element.insertBefore(this.canvas, this.options.element.firstChild);
+					this._resize();
+					var self = this;
+					window.addEventListener("resize", function(e) {
+						self._resize(e);
+					});
+					window.addEventListener("mousemove", function(e) {
+						self._mouseMove(e);
+					});
+					window.addEventListener("mousedown", function(e) {
+						self._mouseDown(e);
+					});
+					this.init.apply(this, arguments);
+				},
+				_resize: function(e) {
+					this.canvas.width = this.options.element.offsetWidth;
+					this.canvas.height = this.options.element.offsetHeight;
+					this.resize([this.canvas.width, this.canvas.height]);
+				},
+				_mouseMove: function(e) {
+					var bounds = this.canvas.getBoundingClientRect();
+					var cursor = [
+						e.clientX - bounds.left,
+						e.clientY - bounds.top
+					];
+					this.mouseMove(cursor);
+				},
+				_mouseDown: function(e) {
+					console.log(e);
+				},
+				_loop: function(self = this) {
+					var currentTime = new Date().getTime();
+					var deltaTime = currentTime - self.lastTime;
+					self.lastTime = currentTime;
+					self.render(deltaTime / 1000, (currentTime - self.startTime) / 1000);
+					self.timeout = window.setTimeout(self._loop, 1000 / self.options.frameRate, self);
+				},
+				play: function() {
+					this.startTime = this.lastTime = new Date().getTime();
+					this._loop();
+				},
+				stop: function() {
+					window.clearTimeout(this.timeout);
+				},
+				resize() {},
+				mouseMove() {},
+				init() {},
+				render: {},
+			});
+
+			Glitch.Effect.extend = Glitch.extend;
+
+		</script>
+
+		<script type="text/javascript">
+
+			var ColorGrid = Glitch.Effect.extend({
+
+				render: function(deltaTime, elapsedTime) {
+					var rectSize = [
+						this.canvas.width / this.options.size[0],
+						this.canvas.height / this.options.size[1]
+					];
+					for (var x = 0; x < this.options.size[0]; ++x) {
+						for (var y = 0; y < this.options.size[1]; ++y) {
+							var point = [
+								(x / this.options.size[0]) * 2 - 1,
+								(y / this.options.size[1]) * 2 - 1
+							];
+							var color = [
+								Math.sin(x * elapsedTime * .1),
+								0,
+								Math.cos(y * elapsedTime * .1)
+							];
+							var rgb = [
+								255 - Math.floor(Math.abs(color[0] * 255)),
+								255 - Math.floor(Math.abs(color[1] * 255)),
+								255 - Math.floor(Math.abs(color[2] * 255))
+							];
+							this.context.fillStyle = "rgb("+rgb[0]+","+rgb[1]+","+rgb[2]+")";
+							this.context.fillRect(
+								rectSize[0] * x,
+								rectSize[1] * y,
+								rectSize[0] * (x + 1),
+								rectSize[1] * (y + 1)
+							);
+						}
+					}
+				},
+
+			});
+
+			var DistancePoints = Glitch.Effect.extend({
+
+				init: function() {
+					this.vertices = [{
+						position: [0, 0],
+						velocity: [0, 0],
+					}];
+					for (var i = 1; i < this.options.numPoints - 1; ++i) {
+						this.vertices[i] = {
+							position: [
+								Math.random() * this.canvas.width, 
+								Math.random() * this.canvas.height
+							],
+							velocity: [
+								Math.random() * 2 - 1,
+								Math.random() * 2 - 1
+							],
+						};
+					}
+				},
+
+				resize: function() {
+					this.init();
+				},
+
+				mouseMove: function(cursor) {
+					this.vertices[0].position = cursor;
+				},
+
+				render: function(deltaTime, elapsedTime) {
+					this.context.fillStyle = "#ffffff";
+					this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+					this.vertices.forEach(function(v0) {
+						v0.velocity[0] *= (v0.position[0] > 0 && v0.position[0] < this.canvas.width) ? +1 : -1;
+						v0.velocity[1] *= (v0.position[1] > 0 && v0.position[1] < this.canvas.height) ? +1 : -1;
+						v0.position[0] += v0.velocity[0];
+						v0.position[1] += v0.velocity[1];
+						this.vertices.forEach(function(v1) {
+							if (v0 === v1) {
+								return false;
+							}
+							var delta = [
+								v1.position[0] - v0.position[0],
+								v1.position[1] - v0.position[1]
+							];
+							var distance = Math.sqrt(delta[0] * delta[0] + delta[1] * delta[1]);
+							if (distance < this.options.maxDistance) {
+								var opacity = 1 - (distance / this.options.maxDistance);
+								var point = [
+									(v0.position[0] / this.canvas.width) * 2 - 1,
+									(v0.position[1] / this.canvas.height) * 2 - 1
+								];
+								var color = [
+									opacity * point[0], 
+									opacity *1, 
+									opacity * point[1]
+								];
+								var rgb = [
+									255 - Math.floor(Math.abs(color[0] * 255)),
+									255 - Math.floor(Math.abs(color[1] * 255)),
+									255 - Math.floor(Math.abs(color[2] * 255))
+								];
+								this.context.beginPath();
+								this.context.moveTo(v0.position[0], v0.position[1]);
+								this.context.lineTo(v1.position[0], v1.position[1]);
+								this.context.closePath();
+								this.context.strokeStyle = "rgb("+rgb[0]+","+rgb[1]+","+rgb[2]+")";
+								this.context.stroke();
+							}
+						}, this);
+					}, this);
+				},
+
+			});
+
+			new ColorGrid({
+				element: document.querySelector("#splash"),
+				frameRate: 30,
+				size: [8, 4],
+			}).play();
+/*
+			new DistancePoints({
+				element: document.querySelector("#splash"),
+				frameRate: 30,
+				numPoints: 100,
+				maxDistance: 200,
+			}).play();
+*/
+
+		</script>
+	</body>
+</html>
+

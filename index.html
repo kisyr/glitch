@@ -60,120 +60,24 @@
 			}
 		</style>
 
-		<div class="section full align middle center" id="splash">
+		<div class="section full align middle center" id="splash-1">
 			<div class="content">
 				<h1>Lorem ipsum</h1>
 			</div>
 		</div>
 
-		<div class="section">
-			<div class="container">
-				<h2>Lorem ipsum</h2>
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ego vero isti, inquam, permitto. Quid ei reliquisti, nisi te, quoquo modo loqueretur, intellegere, quid diceret? Nec tamen ullo modo summum pecudis bonum et hominis idem mihi videri potest. Sine ea igitur iucunde negat posse se vivere? Hoc non est positum in nostra actione. Quod autem satis est, eo quicquid accessit, nimium est; Duo Reges: constructio interrete. Scientiam pollicentur, quam non erat mirum sapientiae cupido patria esse cariorem. Sint modo partes vitae beatae.</p>
-				<p>Ex ea difficultate illae fallaciloquae, ut ait Accius, malitiae natae sunt. Re mihi non aeque satisfacit, et quidem locis pluribus. Sed quid sentiat, non videtis. Te enim iudicem aequum puto, modo quae dicat ille bene noris. Serpere anguiculos, nare anaticulas, evolare merulas, cornibus uti videmus boves, nepas aculeis. Hanc quoque iucunditatem, si vis, transfer in animum; Videmusne ut pueri ne verberibus quidem a contemplandis rebus perquirendisque deterreantur? Cur igitur, inquam, res tam dissimiles eodem nomine appellas? Virtutibus igitur rectissime mihi videris et ad consuetudinem nostrae orationis vitia posuisse contraria. Ut proverbia non nulla veriora sint quam vestra dogmata.</p>
+		<div class="section full align middle center" id="splash-2">
+			<div class="content">
+				<h1>Lorem ipsum</h1>
 			</div>
 		</div>
 
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 		<script type="text/javascript" src="https://cdn.rawgit.com/humbletim/glm-js/31728cb4/build/glm-js.min.js"></script>
+		<script type="text/javascript" src="glitch.js"></script>
 
 		<script type="text/javascript">
-
-			var Glitch = {};
-
-			Glitch.extend = function(protoProps, staticProps) {
-				var parent = this;
-				var child;
-
-				// The constructor function for the new subclass is either defined by you
-				// (the "constructor" property in your `extend` definition), or defaulted
-				// by us to simply call the parent constructor.
-				if (protoProps && _.has(protoProps, 'constructor')) {
-					child = protoProps.constructor;
-				} else {
-					child = function(){ return parent.apply(this, arguments); };
-				}
-
-				// Add static properties to the constructor function, if supplied.
-				_.extend(child, parent, staticProps);
-
-				// Set the prototype chain to inherit from `parent`, without calling
-				// `parent`'s constructor function and add the prototype properties.
-				child.prototype = _.create(parent.prototype, protoProps);
-				child.prototype.constructor = child;
-
-				// Set a convenience property in case the parent's prototype is needed
-				// later.
-				child.__super__ = parent.prototype;
-
-				return child;
-			};
-
-			Glitch.Effect = function(options) {
-				this._init.apply(this, arguments);
-			};
-
-			_.extend(Glitch.Effect.prototype, {
-				_init: function(options) {
-					this.options = options;
-					this.canvas = document.createElement("canvas");
-					this.context = this.canvas.getContext("2d");
-					this.options.element.insertBefore(this.canvas, this.options.element.firstChild);
-					this._resize();
-					var self = this;
-					window.addEventListener("resize", function(e) {
-						self._resize(e);
-					});
-					window.addEventListener("mousemove", function(e) {
-						self._mouseMove(e);
-					});
-					window.addEventListener("mousedown", function(e) {
-						self._mouseDown(e);
-					});
-					this.init.apply(this, arguments);
-				},
-				_resize: function(e) {
-					this.canvas.width = this.options.element.offsetWidth;
-					this.canvas.height = this.options.element.offsetHeight;
-					this.resize([this.canvas.width, this.canvas.height]);
-				},
-				_mouseMove: function(e) {
-					var bounds = this.canvas.getBoundingClientRect();
-					var cursor = [
-						e.clientX - bounds.left,
-						e.clientY - bounds.top
-					];
-					this.mouseMove(cursor);
-				},
-				_mouseDown: function(e) {
-					console.log(e);
-				},
-				_loop: function(self = this) {
-					var currentTime = new Date().getTime();
-					var deltaTime = currentTime - self.lastTime;
-					self.lastTime = currentTime;
-					self.render(deltaTime / 1000, (currentTime - self.startTime) / 1000);
-					self.timeout = window.setTimeout(self._loop, 1000 / self.options.frameRate, self);
-				},
-				play: function() {
-					this.startTime = this.lastTime = new Date().getTime();
-					this._loop();
-				},
-				stop: function() {
-					window.clearTimeout(this.timeout);
-				},
-				resize() {},
-				mouseMove() {},
-				init() {},
-				render: {},
-			});
-
-			Glitch.Effect.extend = Glitch.extend;
-
-		</script>
-
-		<script type="text/javascript">
-
+	
 			var ColorGrid = Glitch.Effect.extend({
 
 				render: function(deltaTime, elapsedTime) {
@@ -286,18 +190,17 @@
 			});
 
 			new ColorGrid({
-				element: document.querySelector("#splash"),
+				element: document.querySelector("#splash-1"),
 				frameRate: 30,
 				size: [8, 4],
 			}).play();
-/*
+
 			new DistancePoints({
-				element: document.querySelector("#splash"),
+				element: document.querySelector("#splash-2"),
 				frameRate: 30,
 				numPoints: 100,
 				maxDistance: 200,
 			}).play();
-*/
 
 		</script>
 	</body>

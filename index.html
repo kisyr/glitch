@@ -87,14 +87,15 @@
 					];
 					for (var x = 0; x < this.options.size[0]; ++x) {
 						for (var y = 0; y < this.options.size[1]; ++y) {
+							var time = elapsedTime + 8;
 							var point = [
 								(x / this.options.size[0]) * 2 - 1,
 								(y / this.options.size[1]) * 2 - 1
 							];
 							var color = [
-								Math.sin(x * elapsedTime * .1),
-								0,
-								Math.cos(y * elapsedTime * .1)
+								Math.pow(Math.sin(point[0] + time * .25), 4),
+								Math.pow(Math.cos(point[0] + time * .25), 4),
+								Math.cos(time * .1),
 							];
 							var rgb = [
 								255 - Math.floor(Math.abs(color[0] * 255)),
@@ -192,7 +193,7 @@
 			new ColorGrid({
 				element: document.querySelector("#splash-1"),
 				frameRate: 30,
-				size: [8, 4],
+				size: [8, 8],
 			}).play();
 
 			new DistancePoints({

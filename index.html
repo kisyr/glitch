@@ -60,13 +60,15 @@
 			}
 		</style>
 
-		<div class="section full align middle center" id="splash-1">
+		<div class="section full align middle center" id="splash-1"></div>
+
+		<div class="section full align middle center" id="splash-2">
 			<div class="content">
 				<h1>Lorem ipsum</h1>
 			</div>
 		</div>
 
-		<div class="section full align middle center" id="splash-2">
+		<div class="section full align middle center" id="splash-3">
 			<div class="content">
 				<h1>Lorem ipsum</h1>
 			</div>
@@ -189,14 +191,28 @@
 
 			});
 
-			new ColorGrid({
+			var GlitchText = Glitch.Effect.extend({
+
+				render: function(deltaTime, elapsedTime) {
+
+				},
+
+			});
+
+			new GlitchText({
 				element: document.querySelector("#splash-1"),
+				frameRate: 30,
+				text: "Lorem ipsum",
+			}).play();
+
+			new ColorGrid({
+				element: document.querySelector("#splash-2"),
 				frameRate: 30,
 				size: [8, 4],
 			}).play();
 
 			new DistancePoints({
-				element: document.querySelector("#splash-2"),
+				element: document.querySelector("#splash-3"),
 				frameRate: 30,
 				numPoints: 100,
 				maxDistance: 200,

@@ -26,6 +26,9 @@
 				font-size: 8em;
 				color: #111;
 			}
+			.content.inverted h1 {
+				color: #fff;
+			}
 			h2 {
 				font-size: 2em;
 				margin-bottom: 1em;
@@ -62,13 +65,19 @@
 
 		<div class="section full align middle center" id="splash-1">
 			<div class="content">
-				<h1>Lorem ipsum</h1>
+				<h1>ColorGrid</h1>
 			</div>
 		</div>
 
 		<div class="section full align middle center" id="splash-2">
 			<div class="content">
-				<h1>Lorem ipsum</h1>
+				<h1>DistancePoints</h1>
+			</div>
+		</div>
+
+		<div class="section full align middle center" id="splash-3">
+			<div class="content inverted">
+				<h1>FadingDots<h1>
 			</div>
 		</div>
 
@@ -77,6 +86,77 @@
 		<script type="text/javascript" src="glitch.js"></script>
 
 		<script type="text/javascript">
+
+			Math.clamp = function(val, min, max) {
+				return Math.max(min, Math.min(max, val));
+			};
+
+			Math.rand = function(min, max) {
+				return Math.random() * (max - min) + min;
+			};
+
+			var FadingDots = Glitch.Effect.extend({
+
+				init: function() {
+					this.dots = [];
+					for (var i = 0; i < this.options.numDots; ++i) {
+						this.dots.push(this.createDot(true));
+					}
+				},
+
+				render: function(deltaTime, elapsedTime) {
+					this.context.fillStyle = "#010101";
+					this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+					for (var i = 0; i < this.dots.length; ++i) {
+						var dot = this.dots[i];
+						dot.elapsed += deltaTime;
+						if (dot.elapsed > dot.lifetime) {
+							dot = this.createDot();
+						}
+						dot.position[0] += dot.velocity[0] * deltaTime * this.options.moveSpeed;
+						dot.position[1] += dot.velocity[1] * deltaTime * this.options.moveSpeed;
+						var rgba = [
+							255 - Math.floor(Math.abs(dot.color[0] * 255)),
+							255 - Math.floor(Math.abs(dot.color[1] * 255)),
+							255 - Math.floor(Math.abs(dot.color[2] * 255)),
+							Math.abs(Math.sin(1 - (dot.elapsed / dot.lifetime))),
+						];
+						this.dots[i] = dot;
+						this.context.beginPath();
+						this.context.arc(
+							dot.position[0], 
+							dot.position[1], 
+							dot.radius * Math.clamp(dot.elapsed / dot.lifetime, 0, 9999), 
+							0, 
+							2 * Math.PI
+						);
+						this.context.fillStyle = "rgba("+rgba[0]+","+rgba[1]+","+rgba[2]+","+rgba[3]+")";
+						this.context.fill();
+					}
+				},
+
+				createDot: function(initial = false) {
+					return {
+						position: [
+							Math.random() * this.canvas.width,
+							Math.random() * this.canvas.height,
+						],
+						velocity: [
+							Math.random() * 2 - 1,
+							Math.random() * 2 - 1,
+						],
+						radius: Math.rand(this.options.minDotRadius, this.options.maxDotRadius),
+						lifetime: Math.rand(this.options.minLifetime, this.options.maxLifetime),
+						elapsed: initial ? Math.random() * this.options.maxLifetime * -1 : 0,
+						color: [
+							Math.random(),
+							Math.random(),
+							Math.random(),
+						],
+					};
+				},
+
+			});
 	
 			var ColorGrid = Glitch.Effect.extend({
 
@@ -201,6 +281,17 @@
 				frameRate: 30,
 				numPoints: 100,
 				maxDistance: 200,
+			}).play();
+
+			new FadingDots({
+				element: document.querySelector("#splash-3"),
+				frameRate: 30,
+				numDots: 100,
+				minDotRadius: 20,
+				maxDotRadius: 50,
+				minLifetime: 3,
+				maxLifetime: 7,
+				moveSpeed: 10,
 			}).play();
 
 		</script>

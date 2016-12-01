@@ -81,6 +81,12 @@
 			</div>
 		</div>
 
+		<div class="section full align middle center" id="splash-4">
+			<div class="content">
+				<h1>Sandbox<h1>
+			</div>
+		</div>
+
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 		<script type="text/javascript" src="https://cdn.rawgit.com/humbletim/glm-js/31728cb4/build/glm-js.min.js"></script>
 		<script type="text/javascript" src="glitch.js"></script>
@@ -94,6 +100,18 @@
 			Math.rand = function(min, max) {
 				return Math.random() * (max - min) + min;
 			};
+
+			var Sandbox = Glitch.Effect.extend({
+
+				init: function() {
+
+				},
+
+				render: function(deltaTime, elapsedTime) {
+
+				},
+
+			});
 
 			var FadingDots = Glitch.Effect.extend({
 
@@ -116,20 +134,25 @@
 						dot.position[0] += dot.velocity[0] * deltaTime * this.options.moveSpeed;
 						dot.position[1] += dot.velocity[1] * deltaTime * this.options.moveSpeed;
 						var rgba = [
-							255 - Math.floor(Math.abs(dot.color[0] * 255)),
-							255 - Math.floor(Math.abs(dot.color[1] * 255)),
-							255 - Math.floor(Math.abs(dot.color[2] * 255)),
+							Math.floor(Math.abs(dot.color[0] * 255)),
+							Math.floor(Math.abs(dot.color[1] * 255)),
+							Math.floor(Math.abs(dot.color[2] * 255)),
 							Math.abs(Math.sin(1 - (dot.elapsed / dot.lifetime))),
 						];
+						var size = dot.radius * Math.clamp(dot.elapsed / dot.lifetime, 0, 9999);
 						this.dots[i] = dot;
 						this.context.beginPath();
 						this.context.arc(
 							dot.position[0], 
 							dot.position[1], 
-							dot.radius * Math.clamp(dot.elapsed / dot.lifetime, 0, 9999), 
+							size, 
 							0, 
 							2 * Math.PI
 						);
+						if (this.options.glow) {
+							this.context.shadowBlur = size * this.options.glowFactor;
+							this.context.shadowColor = "rgba("+rgba[0]+","+rgba[1]+","+rgba[2]+","+1+")";
+						}
 						this.context.fillStyle = "rgba("+rgba[0]+","+rgba[1]+","+rgba[2]+","+rgba[3]+")";
 						this.context.fill();
 					}
@@ -149,9 +172,9 @@
 						lifetime: Math.rand(this.options.minLifetime, this.options.maxLifetime),
 						elapsed: initial ? Math.random() * this.options.maxLifetime * -1 : 0,
 						color: [
-							Math.random(),
-							Math.random(),
-							Math.random(),
+							Math.rand(.75,1),
+							Math.rand(0,.5),
+							Math.rand(.5,1),
 						],
 					};
 				},
@@ -286,12 +309,19 @@
 			new FadingDots({
 				element: document.querySelector("#splash-3"),
 				frameRate: 30,
-				numDots: 100,
+				numDots: 50,
 				minDotRadius: 20,
 				maxDotRadius: 50,
-				minLifetime: 3,
-				maxLifetime: 7,
-				moveSpeed: 10,
+				minLifetime: 5,
+				maxLifetime: 15,
+				moveSpeed: 20,
+				glow: true,
+				glowFactor: 2,
+			}).play();
+
+			new Sandbox({
+				element: document.querySelector("#splash-4"),
+				frameRate: 30,
 			}).play();
 
 		</script>

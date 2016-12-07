@@ -82,7 +82,7 @@
 		</div>
 
 		<div class="section full align middle center" id="splash-4">
-			<div class="content">
+			<div class="content inverted">
 				<h1>Sandbox<h1>
 			</div>
 		</div>
@@ -104,11 +104,55 @@
 			var Sandbox = Glitch.Effect.extend({
 
 				init: function() {
-
+					this.dots = [];
+					for (var i = 0; i < 10; ++i) {
+						this.dots.push({
+							position: [
+								Math.random() * this.canvas.width,
+								Math.random() * this.canvas.height,
+							],
+							velocity: [
+								Math.rand(-1, +1),
+								Math.rand(-1, +1),
+							],
+							color: [
+								Math.rand(.25, 1),
+								Math.rand(.25, 1),
+								Math.rand(.25, 1),
+								0.5,
+							],
+							size: Math.rand(.5, 1),
+						});
+					}
 				},
 
 				render: function(deltaTime, elapsedTime) {
-
+					this.context.fillStyle = "#000000";
+					this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+					this.dots.forEach(function(dot) {
+						var speed = 10;
+						dot.velocity[0] *= (dot.position[0] > 0 && dot.position[0] < this.canvas.width) ? +1 : -1;
+						dot.velocity[1] *= (dot.position[1] > 0 && dot.position[1] < this.canvas.height) ? +1 : -1;
+						dot.position[0] += dot.velocity[0] * speed * deltaTime;
+						dot.position[1] += dot.velocity[1] * speed * deltaTime;
+						var rgba = [
+							Math.floor(Math.abs(dot.color[0] * 255)),
+							Math.floor(Math.abs(dot.color[1] * 255)),
+							Math.floor(Math.abs(dot.color[2] * 255)),
+							0.7,
+						];
+						var size = Math.sqrt(this.canvas.width * this.canvas.height) * dot.size;
+						this.context.beginPath();
+						this.context.arc(
+							dot.position[0], 
+							dot.position[1], 
+							size, 
+							0, 
+							2 * Math.PI
+						);
+						this.context.fillStyle = "rgba("+rgba[0]+","+rgba[1]+","+rgba[2]+","+rgba[3]+")";
+						this.context.fill();
+					}, this);
 				},
 
 			});
